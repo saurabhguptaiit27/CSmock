@@ -1,0 +1,17 @@
+{
+  "name": "csmock-backend",
+  "version": "1.0.0",
+  "description": "Backend for CSmock app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "csmock",
+    "backend",
+    "javascript",
+    "mongodb"
+  ],
+  "author": "Saurabh Gupta",
+  "license": "ISC"
+}
