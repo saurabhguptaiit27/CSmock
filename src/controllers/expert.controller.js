@@ -15,7 +15,7 @@ const registerExpert = asyncHandler(async (req, res) => {
     // check for expert creation
     // return response
 
-    const { fullname, email, username, password } = req.body
+    const { fullname, email, username, password, fees, proficiency, gender, phone, experience, expertise, previousCompanies } = req.body
     //console.log("email: ", email);
 
     if (
@@ -62,7 +62,14 @@ const registerExpert = asyncHandler(async (req, res) => {
         coverImage: coverImage?.url || "",
         email,
         password,
-        username: username.toLowerCase()
+        username: username.toLowerCase(),
+        fees,
+        proficiency,
+        gender,
+        phone,
+        experience,
+        previousCompanies,
+        expertise
     })
 
     const createdExpert = await Expert.findById(expert._id).select(
