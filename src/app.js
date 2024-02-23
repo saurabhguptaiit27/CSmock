@@ -21,11 +21,14 @@ app.use(cookieParser())
 //routes import
 import userRouter from "./routes/user.routes.js";
 import expertRouter from "./routes/expert.routes.js"
+import bookingRouter from "./routes/booking.routes.js"
 
 //routes declaration
 // http://localhost:8000/api/v1/users/register
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/experts", expertRouter);
+app.use("/api/v1/users-experts", bookingRouter);
+
 
 
 export { app }
