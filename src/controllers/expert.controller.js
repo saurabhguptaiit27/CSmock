@@ -87,4 +87,112 @@ const registerExpert = asyncHandler(async (req, res) => {
 })
 
 
-export { registerExpert }
+
+const generateAccessAndRefereshTokens = async (expertId) => {
+    try {
+        const expert = await Expert.findById(expertId)
+        const accessToken = expert.generateAccessToken()
+        const refreshToken = expert.generateRefreshToken()
+
+        expert.refreshToken = refreshToken
+        await expert.save({ validateBeforeSave: false })
+
+        return { accessToken, refreshToken }
+
+
+    } catch (error) {
+        throw new ApiError(500, "Something went wrong while generating refresh and access token for expert")
+    }
+}
+
+const loginExpert = asyncHandler(async (req, res) => {
+    // req body -> data
+    // username or email
+    //find the expert
+    //password check
+    //access and referesh token
+    //send cookie
+
+    const { email, username, password } = req.body
+    console.log(email);
+
+    if (!username && !email) {
+        throw new ApiError(400, "username or email is required")
+    }
+
+    // Here is an alternative of above code based on logic discussed in video:
+    // if (!(username || email)) {
+    //     throw new ApiError(400, "username or email is required")
+
+    // }
+
+    const expert = await Expert.findOne({
+        $or: [{ username }, { email }]
+    })
+
+    if (!expert) {
+        throw new ApiError(404, "Expert does not exist")
+    }
+
+    const isPasswordValid = await expert.isPasswordCorrect(password)
+
+    if (!isPasswordValid) {
+        throw new ApiError(401, "Invalid expert credentials")
+    }
+
+    const { accessToken, refreshToken } = await generateAccessAndRefereshTokens(expert._id)
+
+    const loggedInExpert = await Expert.findById(expert._id).select("-password -refreshToken")
+
+    const options = {
+        httpOnly: true,
+        secure: true
+    }
+    // this options object is used to secure cookies from frontend
+
+    return res
+        .status(200)
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", refreshToken, options)
+        .json(
+            new ApiResponse(
+                200,
+                {
+                    user: loggedInExpert, accessToken, refreshToken
+                },
+                "Expert logged In Successfully"
+            )
+        )
+
+})
+
+
+
+const logoutExpert = asyncHandler(async (req, res) => {
+    await Expert.findByIdAndUpdate(
+        req.expert._id,
+        //this req.expert got from verifyJWT middleware 
+        {
+            $unset: {
+                refreshToken: 1 // this removes the field from document
+            }
+        },
+        {
+            new: true
+        }
+    )
+
+    const options = {
+        httpOnly: true,
+        secure: true
+    }
+
+    return res
+        .status(200)
+        .clearCookie("accessToken", options)
+        .clearCookie("refreshToken", options)
+        .json(new ApiResponse(200, {}, "Expert logged Out"))
+})
+
+
+export { registerExpert, loginExpert, logoutExpert }
