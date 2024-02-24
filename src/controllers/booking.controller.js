@@ -10,11 +10,11 @@ import { Booking } from "../models/booking.models.js";
 const appointmentBooking = asyncHandler(async (req, res) => {
 
 
-    const { userId, expertId, dateTimeOfBooking } = req.body
+    const { userId, expertId, appointmentDateTime, noteToExpert } = req.body
     //console.log("email: ", email);
 
     if (
-        [userId, expertId, dateTimeOfBooking].some((field) => field?.trim() === "")
+        [userId, expertId, appointmentDateTime].some((field) => field?.trim() === "")
     ) {
         throw new ApiError(400, "All fields are required")
     }
@@ -37,7 +37,8 @@ const appointmentBooking = asyncHandler(async (req, res) => {
     const booking = await Booking.create({
         user: userId,
         expert: expertId,
-        appointmentDateTime: dateTimeOfBooking
+        appointmentDateTime,
+        noteToExpert
     })
 
     await booking.save();

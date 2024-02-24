@@ -16,6 +16,9 @@ const bookingSchema = new Schema(
             type: Date,
             required: true
         },
+        noteToExpert: {
+            type: String
+        },
         status: {
             type: String,
             enum: ["pending", "completed", "cancelled"],
