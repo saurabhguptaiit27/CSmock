@@ -63,6 +63,12 @@ const userSchema = new Schema(
                 ref: "Booking"
             }
         ],
+        feedbackHistory: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: "Feedback"
+            }
+        ],
         refreshToken: {
             type: String
         }
