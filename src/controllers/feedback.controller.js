@@ -12,7 +12,6 @@ const giveFeedback = asyncHandler(async (req, res) => {
 
 
     const { bookingId, rating, comment } = req.body
-    //console.log("email: ", email);
 
     if (
         [bookingId, rating].some((field) => field?.trim() === "")
