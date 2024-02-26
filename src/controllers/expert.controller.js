@@ -3,6 +3,7 @@ import { ApiError } from "../utils/ApiError.js"
 import { Expert } from "../models/expert.models.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import { v2 as cloudinary } from 'cloudinary';
 
 const registerExpert = asyncHandler(async (req, res) => {
     // get expert details from frontend
@@ -246,4 +247,158 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
 
 
-export { registerExpert, loginExpert, logoutExpert, refreshAccessToken }
+
+
+const changeCurrentPassword = asyncHandler(async (req, res) => {
+    const { oldPassword, newPassword } = req.body
+
+
+
+    const expert = await Expert.findById(req.expert?._id)
+    const isPasswordCorrect = await expert.isPasswordCorrect(oldPassword)
+
+    if (!isPasswordCorrect) {
+        throw new ApiError(400, "Invalid old password")
+    }
+
+    expert.password = newPassword
+    await expert.save({ validateBeforeSave: false })
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, {}, "Password changed successfully"))
+})
+
+
+const getCurrentExpert = asyncHandler(async (req, res) => {
+    return res
+        .status(200)
+        .json(new ApiResponse(
+            200,
+            req.expert,
+            "Expert fetched successfully"
+        ))
+})
+
+
+const updateAccountDetails = asyncHandler(async (req, res) => {
+    const { fullName, email } = req.body
+
+    if (!fullName || !email) {
+        throw new ApiError(400, "All fields are required")
+    }
+
+    const expert = await Expert.findByIdAndUpdate(
+        req.expert?._id,
+        {
+            $set: {
+                fullName,
+                email: email
+            }
+        },
+        { new: true }
+
+    ).select("-password")
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, expert, "Account details updated successfully"))
+});
+
+
+const updateExpertAvatar = asyncHandler(async (req, res) => {
+    const avatarLocalPath = req.file?.path
+
+    if (!avatarLocalPath) {
+        throw new ApiError(400, "Avatar file is missing")
+    }
+
+    // Delete old avatar
+    const oldAvatarUrl = req.expert?.avatar;
+    // Delete the old avatar from Cloudinary if it exists
+    if (!oldAvatarUrl) {
+        throw new ApiError(400, "old avatar url not found")
+    }
+    // Extract the public ID from the image URL (assuming Cloudinary URLs are in the format: https://res.cloudinary.com/<cloud_name>/image/upload/<public_id>)
+    const publicId = oldAvatarUrl.split("/").pop().split(".")[0];
+
+    // Delete the image from Cloudinary
+    const deletionResult = await cloudinary.uploader.destroy(publicId);
+    ////////////////
+
+    // upload new avatar after deleting old cover image on cloudinary
+    const avatar = await uploadOnCloudinary(avatarLocalPath)
+
+    if (!avatar.url) {
+        throw new ApiError(400, "Error while uploading on avatar")
+
+    }
+
+    const expert = await Expert.findByIdAndUpdate(
+        req.expert?._id,
+        {
+            $set: {
+                avatar: avatar.url
+            }
+        },
+        { new: true }
+    ).select("-password")
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(200, expert, "Avatar image updated successfully")
+        )
+})
+
+
+const updateExpertCoverImage = asyncHandler(async (req, res) => {
+    const coverImageLocalPath = req.file?.path
+
+    if (!coverImageLocalPath) {
+        throw new ApiError(400, "Cover image file is missing")
+    }
+
+    // Delete old cover image
+    const oldCoverImageUrl = req.expert?.coverImage;
+    // Delete the old cover image from Cloudinary if it exists
+    if (!oldCoverImageUrl) {
+        throw new ApiError(400, "old Cover image url not found")
+    }
+    // Extract the public ID from the image URL (assuming Cloudinary URLs are in the format: https://res.cloudinary.com/<cloud_name>/image/upload/<public_id>)
+    const publicId = oldCoverImageUrl.split("/").pop().split(".")[0];
+
+    // Delete the image from Cloudinary
+    const deletionResult = await cloudinary.uploader.destroy(publicId);
+    ////////////////
+
+    // upload new cover image after deleting old cover image on cloudinary
+
+    const coverImage = await uploadOnCloudinary(coverImageLocalPath)
+
+    if (!coverImage.url) {
+        throw new ApiError(400, "Error while uploading on Cover image")
+
+    }
+
+    const expert = await Expert.findByIdAndUpdate(
+        req.expert?._id,
+        {
+            $set: {
+                coverImage: coverImage.url
+            }
+        },
+        { new: true }
+    ).select("-password")
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(200, expert, "Cover image updated successfully")
+        )
+})
+
+
+
+
+export { registerExpert, loginExpert, logoutExpert, refreshAccessToken, changeCurrentPassword, getCurrentExpert, updateAccountDetails, updateExpertAvatar, updateExpertCoverImage }
