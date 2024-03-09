@@ -2,19 +2,24 @@ import mongoose, { Schema } from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-const availabilitySchema = new mongoose.Schema({
-    date: {
-        type: Date,
-        required: true
-    },
-    timeSlots: [{
-        type: Date,
-        required: true
-    }]
-});
+// const availabilitySchema = new mongoose.Schema({
+//     date: {
+//         type: Date,
+//         required: true
+//     },
+//     timeSlots: [{
+//         type: Date,
+//         required: true
+//     }]
+// });
 
 const expertSchema = new Schema(
     {
+        userType: {
+            type: String,
+            default: "expert"
+        }
+        ,
         username: {
             type: String,
             required: true,
@@ -46,7 +51,7 @@ const expertSchema = new Schema(
             enum: ["Male", "Female", "Other"],
             required: true,
         },
-        coverImage: {
+        avatar: {
             type: String,
         },
         password: {
@@ -68,14 +73,19 @@ const expertSchema = new Schema(
                 type: String
             }
         ],
-        proficiency: {
-            type: String,
-            enum: ["Beginner", "Intermediate", "Expert"],
-            required: [true, "This field should be filled carefully."]
-        },
-        availability: {
-            type: [availabilitySchema]
-        },
+        // proficiency: {
+        //     type: String,
+        //     enum: ["Beginner", "Intermediate", "Expert"],
+        //     required: [true, "This field should be filled carefully."]
+        // },
+        // availability: {
+        //     type: [availabilitySchema]
+        // },
+        availability: [
+            {
+                type: String
+            }
+        ],
         fees: {
             type: Number,
             required: true,
