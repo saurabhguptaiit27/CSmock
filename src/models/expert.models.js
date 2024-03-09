@@ -17,9 +17,8 @@ const expertSchema = new Schema(
     {
         userType: {
             type: String,
-            default: "expert"
-        }
-        ,
+            default: "Expert"
+        },
         username: {
             type: String,
             required: true,
