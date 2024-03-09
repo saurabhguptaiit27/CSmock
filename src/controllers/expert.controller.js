@@ -16,7 +16,7 @@ const registerExpert = asyncHandler(async (req, res) => {
     // check for expert creation
     // return response
 
-    const { fullname, email, username, password, fees, proficiency, gender, phone, experience, expertise, previousCompanies } = req.body
+    const { fullname, email, username, password, fees, gender, phone, experience, expertise, previousCompanies } = req.body
     //console.log("email: ", email);
 
     if (
@@ -35,37 +35,23 @@ const registerExpert = asyncHandler(async (req, res) => {
     //console.log(req.files);
 
     const avatarLocalPath = req.files?.avatar[0]?.path;
-    //const coverImageLocalPath = req.files?.coverImage[0]?.path;
-
     // multer middlware add extra features to request hence we got req.files
-
-    let coverImageLocalPath;
-    if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) {
-        coverImageLocalPath = req.files.coverImage[0].path
-    }
-
 
     if (!avatarLocalPath) {
         throw new ApiError(400, "Avatar file is required")
     }
 
     const avatar = await uploadOnCloudinary(avatarLocalPath)
-    const coverImage = await uploadOnCloudinary(coverImageLocalPath)
-
     if (!avatar) {
         throw new ApiError(400, "Avatar file not able to upload on cloudinary")
     }
-
-
     const expert = await Expert.create({
         fullname,
         avatar: avatar.url,
-        coverImage: coverImage?.url || "",
         email,
         password,
         username: username.toLowerCase(),
         fees,
-        proficiency,
         gender,
         phone,
         experience,
@@ -280,6 +266,16 @@ const getCurrentExpert = asyncHandler(async (req, res) => {
         ))
 })
 
+const getALLExperts = asyncHandler(async (req, res) => {
+    const experts = await Expert.find({})
+    return res
+        .status(200)
+        .json(new ApiResponse(
+            200,
+            experts,
+            "All Experts are Fetched"))
+})
+
 
 const updateAccountDetails = asyncHandler(async (req, res) => {
     const { fullName, email } = req.body
@@ -352,53 +348,8 @@ const updateExpertAvatar = asyncHandler(async (req, res) => {
 })
 
 
-const updateExpertCoverImage = asyncHandler(async (req, res) => {
-    const coverImageLocalPath = req.file?.path
-
-    if (!coverImageLocalPath) {
-        throw new ApiError(400, "Cover image file is missing")
-    }
-
-    // Delete old cover image
-    const oldCoverImageUrl = req.expert?.coverImage;
-    // Delete the old cover image from Cloudinary if it exists
-    if (!oldCoverImageUrl) {
-        throw new ApiError(400, "old Cover image url not found")
-    }
-    // Extract the public ID from the image URL (assuming Cloudinary URLs are in the format: https://res.cloudinary.com/<cloud_name>/image/upload/<public_id>)
-    const publicId = oldCoverImageUrl.split("/").pop().split(".")[0];
-
-    // Delete the image from Cloudinary
-    const deletionResult = await cloudinary.uploader.destroy(publicId);
-    ////////////////
-
-    // upload new cover image after deleting old cover image on cloudinary
-
-    const coverImage = await uploadOnCloudinary(coverImageLocalPath)
-
-    if (!coverImage.url) {
-        throw new ApiError(400, "Error while uploading on Cover image")
-
-    }
-
-    const expert = await Expert.findByIdAndUpdate(
-        req.expert?._id,
-        {
-            $set: {
-                coverImage: coverImage.url
-            }
-        },
-        { new: true }
-    ).select("-password")
-
-    return res
-        .status(200)
-        .json(
-            new ApiResponse(200, expert, "Cover image updated successfully")
-        )
-})
 
 
 
 
-export { registerExpert, loginExpert, logoutExpert, refreshAccessToken, changeCurrentPassword, getCurrentExpert, updateAccountDetails, updateExpertAvatar, updateExpertCoverImage }
+export { registerExpert, loginExpert, logoutExpert, refreshAccessToken, changeCurrentPassword, getCurrentExpert, getALLExperts, updateAccountDetails, updateExpertAvatar }
