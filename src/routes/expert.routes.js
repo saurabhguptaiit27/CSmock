@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { upload } from "../middlewares/multer.middleware.js";
-import { registerExpert, loginExpert, logoutExpert, refreshAccessToken, changeCurrentPassword, getCurrentExpert, getALLExperts, updateAccountDetails, updateExpertAvatar } from "../controllers/expert.controller.js";
+import { registerExpert, loginExpert,addAvailability,logoutExpert, refreshAccessToken, changeCurrentPassword, getCurrentExpert, getALLExperts, updateAccountDetails, updateExpertAvatar } from "../controllers/expert.controller.js";
 import { verifyJWT } from "../middlewares/expertauth.middleware.js";
 
 const router = Router();
@@ -21,6 +21,7 @@ router.route("/login").post(loginExpert)
 
 //secured routes
 router.route("/logout").post(verifyJWT, logoutExpert)
+router.route("/addavailability").post(verifyJWT, addAvailability)
 router.route("/refresh-token").post(refreshAccessToken)
 router.route("/change-password").post(verifyJWT, changeCurrentPassword)
 router.route("/current-expert").get(verifyJWT, getCurrentExpert)
