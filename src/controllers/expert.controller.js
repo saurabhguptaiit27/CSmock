@@ -74,7 +74,6 @@ const registerExpert = asyncHandler(async (req, res) => {
 })
 
 
-
 const generateAccessAndRefereshTokens = async (expertId) => {
     try {
         const expert = await Expert.findById(expertId)
@@ -92,6 +91,7 @@ const generateAccessAndRefereshTokens = async (expertId) => {
     }
 }
 
+
 const loginExpert = asyncHandler(async (req, res) => {
     // req body -> data
     // username or email
@@ -101,7 +101,6 @@ const loginExpert = asyncHandler(async (req, res) => {
     //send cookie
 
     const { email, username, password } = req.body
-    console.log(email);
 
     if (!username && !email) {
         throw new ApiError(400, "username or email is required")
@@ -133,19 +132,22 @@ const loginExpert = asyncHandler(async (req, res) => {
 
     const options = {
         httpOnly: true,
-        secure: true
+        // secure: true
     }
     // this options object is used to secure cookies from frontend
 
+    // { expire: 1 * 24 * 60 * 60 * 1000 + Date.now(), httpOnly: true }
+
     return res
         .status(200)
-        .cookie("accessToken", accessToken, options)
-        .cookie("refreshToken", refreshToken, options)
+        .cookie("accessToken", accessToken)
+        .cookie("refreshToken", refreshToken)
+        .cookie("userType", "Expert")
         .json(
             new ApiResponse(
                 200,
                 {
-                    user: loggedInExpert, accessToken, refreshToken
+                    details: loggedInExpert, accessToken, refreshToken
                 },
                 "Expert logged In Successfully"
             )
@@ -171,16 +173,36 @@ const logoutExpert = asyncHandler(async (req, res) => {
 
     const options = {
         httpOnly: true,
-        secure: true
+        // secure: true
     }
 
     return res
         .status(200)
         .clearCookie("accessToken", options)
         .clearCookie("refreshToken", options)
+        .clearCookie("userType")
         .json(new ApiResponse(200, {}, "Expert logged Out"))
 })
 
+
+const addAvailability = asyncHandler(async (req, res) => {
+    const appointmentDateTime = req.body
+    await Expert.findByIdAndUpdate(
+        req.expert._id,
+        //this req.expert got from verifyJWT middleware 
+        {
+            $set: {
+                availability: appointmentDateTime // this adds the data in field in document
+            }
+        },
+        {
+            new: true
+        }
+    )
+    return res
+        .status(200)
+        .json(new ApiResponse(200, {}, "Expert's Availability saved"))
+})
 
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
@@ -232,9 +254,6 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 })
 
 
-
-
-
 const changeCurrentPassword = asyncHandler(async (req, res) => {
     const { oldPassword, newPassword } = req.body
 
@@ -265,6 +284,7 @@ const getCurrentExpert = asyncHandler(async (req, res) => {
             "Expert fetched successfully"
         ))
 })
+
 
 const getALLExperts = asyncHandler(async (req, res) => {
     const experts = await Expert.find({})
@@ -349,7 +369,4 @@ const updateExpertAvatar = asyncHandler(async (req, res) => {
 
 
 
-
-
-
-export { registerExpert, loginExpert, logoutExpert, refreshAccessToken, changeCurrentPassword, getCurrentExpert, getALLExperts, updateAccountDetails, updateExpertAvatar }
+export { registerExpert, loginExpert, addAvailability, logoutExpert, refreshAccessToken, changeCurrentPassword, getCurrentExpert, getALLExperts, updateAccountDetails, updateExpertAvatar }

@@ -35,14 +35,8 @@ const registerUser = asyncHandler(async (req, res) => {
     //console.log(req.files);
 
     const avatarLocalPath = req.files?.avatar[0]?.path;
-    //const coverImageLocalPath = req.files?.coverImage[0]?.path;
-
     // multer middlware add extra features to request hence we got req.files
 
-    let coverImageLocalPath;
-    if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) {
-        coverImageLocalPath = req.files.coverImage[0].path
-    }
 
 
     if (!avatarLocalPath) {
@@ -50,7 +44,6 @@ const registerUser = asyncHandler(async (req, res) => {
     }
 
     const avatar = await uploadOnCloudinary(avatarLocalPath)
-    const coverImage = await uploadOnCloudinary(coverImageLocalPath)
 
     if (!avatar) {
         throw new ApiError(400, "Avatar file is required")
@@ -60,7 +53,6 @@ const registerUser = asyncHandler(async (req, res) => {
     const user = await User.create({
         fullname,
         avatar: avatar.url,
-        coverImage: coverImage?.url || "",
         email,
         password,
         username: username.toLowerCase(),
@@ -114,7 +106,6 @@ const loginUser = asyncHandler(async (req, res) => {
     //send cookie
 
     const { email, username, password } = req.body
-    console.log(email);
 
     if (!username && !email) {
         throw new ApiError(400, "username or email is required")
@@ -146,19 +137,22 @@ const loginUser = asyncHandler(async (req, res) => {
 
     const options = {
         httpOnly: true,
-        secure: true
+        // secure: true,
     }
+
+
     // this options object is used to secure cookies from frontend
 
     return res
         .status(200)
-        .cookie("accessToken", accessToken, options)
-        .cookie("refreshToken", refreshToken, options)
+        .cookie("accessToken", accessToken)
+        .cookie("refreshToken", refreshToken)
+        .cookie("userType", "User")
         .json(
             new ApiResponse(
                 200,
                 {
-                    user: loggedInUser, accessToken, refreshToken
+                    details: loggedInUser, accessToken, refreshToken
                 },
                 "User logged In Successfully"
             )
@@ -169,7 +163,8 @@ const loginUser = asyncHandler(async (req, res) => {
 
 
 const logoutUser = asyncHandler(async (req, res) => {
-    await User.findByIdAndUpdate(
+
+    const user11 = await User.findByIdAndUpdate(
         req.user._id,
         //this req.user got from verifyJWT middleware 
         {
@@ -181,17 +176,27 @@ const logoutUser = asyncHandler(async (req, res) => {
             new: true
         }
     )
+    console.log("user11------", user11)
 
     const options = {
         httpOnly: true,
-        secure: true
+        // secure: true
     }
 
     return res
         .status(200)
         .clearCookie("accessToken", options)
         .clearCookie("refreshToken", options)
-        .json(new ApiResponse(200, {}, "User logged Out"))
+        .clearCookie("userType")
+        .json(
+            new ApiResponse(
+                200,
+                {
+
+                },
+                "User logged Out"
+            )
+        )
 })
 
 
@@ -222,7 +227,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
         const options = {
             httpOnly: true,
-            secure: true
+            // secure: true
         }
 
         const { accessToken, newRefreshToken } = await generateAccessAndRefereshTokens(user._id)
@@ -268,6 +273,7 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 
 
 const getCurrentUser = asyncHandler(async (req, res) => {
+    console.log("verified JWT entered getcurrentuser logic:", req.cookies)
     return res
         .status(200)
         .json(new ApiResponse(
@@ -276,6 +282,9 @@ const getCurrentUser = asyncHandler(async (req, res) => {
             "User fetched successfully"
         ))
 })
+
+
+
 
 
 const updateAccountDetails = asyncHandler(async (req, res) => {
@@ -349,52 +358,6 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
 })
 
 
-const updateUserCoverImage = asyncHandler(async (req, res) => {
-    const coverImageLocalPath = req.file?.path
-
-    if (!coverImageLocalPath) {
-        throw new ApiError(400, "Cover image file is missing")
-    }
-
-    // Delete old cover image
-    const oldCoverImageUrl = req.user?.coverImage;
-    // Delete the old cover image from Cloudinary if it exists
-    if (!oldCoverImageUrl) {
-        throw new ApiError(400, "old Cover image url not found")
-    }
-    // Extract the public ID from the image URL (assuming Cloudinary URLs are in the format: https://res.cloudinary.com/<cloud_name>/image/upload/<public_id>)
-    const publicId = oldCoverImageUrl.split("/").pop().split(".")[0];
-
-    // Delete the image from Cloudinary
-    const deletionResult = await cloudinary.uploader.destroy(publicId);
-    ////////////////
-
-    // upload new cover image after deleting old cover image on cloudinary
-
-    const coverImage = await uploadOnCloudinary(coverImageLocalPath)
-
-    if (!coverImage.url) {
-        throw new ApiError(400, "Error while uploading on Cover image")
-
-    }
-
-    const user = await User.findByIdAndUpdate(
-        req.user?._id,
-        {
-            $set: {
-                coverImage: coverImage.url
-            }
-        },
-        { new: true }
-    ).select("-password")
-
-    return res
-        .status(200)
-        .json(
-            new ApiResponse(200, user, "Cover image updated successfully")
-        )
-})
 
 
-
-export { registerUser, loginUser, logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, updateAccountDetails, updateUserAvatar, updateUserCoverImage } 
+export { registerUser, loginUser, logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, updateAccountDetails, updateUserAvatar } 
