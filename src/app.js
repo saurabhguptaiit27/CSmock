@@ -6,9 +6,11 @@ import cookieParser from "cookie-parser";
 const app = express();
 
 app.use(cors({
-    origin: process.env.CORS_ORIGIN,
-    credentials: true
+    origin: 'http://localhost:5173',
+    credentials: true,
+    optionsSuccessStatus: 200,
 }))
+
 
 
 app.use(express.json({ limit: "16kb" }))
@@ -26,6 +28,7 @@ import feedbackRouter from "./routes/feedback.routes.js"
 
 //routes declaration
 // http://localhost:8000/api/v1/users/register
+app.use("/api/v1/users", userRouter);
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/experts", expertRouter);
 app.use("/api/v1/users-experts", bookingRouter);
