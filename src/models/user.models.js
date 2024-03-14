@@ -39,12 +39,13 @@ const userSchema = new Schema(
             enum: ["Male", "Female", "Other"],
             required: true,
         },
-        coverImage: {
-            type: String,
-        },
         password: {
             type: String,
             required: [true, "Password is required"]
+        },
+        avatar: {
+            type: String,
+            required: true,
         },
         experience: {
             type: Number,
