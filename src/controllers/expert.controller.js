@@ -286,6 +286,21 @@ const getCurrentExpert = asyncHandler(async (req, res) => {
 })
 
 
+const getExpertById = asyncHandler(async (req, res) => {
+
+    const expertId = req.query.string;
+
+    const expertById = await Expert.findById(expertId).select("-password -refreshToken")
+    return res
+        .status(200)
+        .json(new ApiResponse(
+            200,
+            expertById,
+            "Expert by Id fetched successfully"
+        ))
+})
+
+
 const getALLExperts = asyncHandler(async (req, res) => {
     const experts = await Expert.find({})
     return res
@@ -369,4 +384,4 @@ const updateExpertAvatar = asyncHandler(async (req, res) => {
 
 
 
-export { registerExpert, loginExpert, addAvailability, logoutExpert, refreshAccessToken, changeCurrentPassword, getCurrentExpert, getALLExperts, updateAccountDetails, updateExpertAvatar }
+export { registerExpert, loginExpert, addAvailability, logoutExpert, refreshAccessToken, changeCurrentPassword, getCurrentExpert, getALLExperts, updateAccountDetails, updateExpertAvatar, getExpertById }

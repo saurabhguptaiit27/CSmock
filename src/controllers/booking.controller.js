@@ -10,7 +10,7 @@ import { Booking } from "../models/booking.models.js";
 const appointmentBooking = asyncHandler(async (req, res) => {
 
 
-    const { userId, expertId, appointmentDateTime, noteToExpert } = req.body
+    const { userId, expertId, appointmentDateTime, bookedAt, noteToExpert } = req.body
     //console.log("email: ", email);
 
     if (
@@ -38,6 +38,7 @@ const appointmentBooking = asyncHandler(async (req, res) => {
         user: userId,
         expert: expertId,
         appointmentDateTime,
+        bookedAt,
         noteToExpert
     })
 
@@ -56,4 +57,20 @@ const appointmentBooking = asyncHandler(async (req, res) => {
 
 })
 
-export { appointmentBooking }
+const getBookingById = asyncHandler(async (req, res) => {
+
+    const bookingId  = req.query.string;
+    console.log(req.query.string)
+
+    const bookingById = await Booking.findById(bookingId)
+    return res
+        .status(200)
+        .json(new ApiResponse(
+            200,
+            bookingById,
+            "Booking by Id fetched successfully"
+        ))
+})
+
+
+export { appointmentBooking, getBookingById }

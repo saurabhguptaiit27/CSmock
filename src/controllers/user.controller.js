@@ -284,6 +284,20 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 })
 
 
+const getUserById = asyncHandler(async (req, res) => {
+
+    const userId = req.query.string;
+
+    const userById = await User.findById(userId).select("-password -refreshToken")
+    return res
+        .status(200)
+        .json(new ApiResponse(
+            200,
+            userById,
+            "User by Id fetched successfully"
+        ))
+})
+
 
 
 
@@ -360,4 +374,4 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
 
 
 
-export { registerUser, loginUser, logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, updateAccountDetails, updateUserAvatar } 
+export { registerUser, loginUser, logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, updateAccountDetails, updateUserAvatar, getUserById } 
