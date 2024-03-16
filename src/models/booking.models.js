@@ -13,7 +13,11 @@ const bookingSchema = new Schema(
             required: true
         },
         appointmentDateTime: {
-            type: Date,
+            type: String,
+            required: true
+        },
+        bookedAt: {
+            type: String,
             required: true
         },
         noteToExpert: {
