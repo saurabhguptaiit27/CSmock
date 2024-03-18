@@ -29,7 +29,6 @@ import feedbackRouter from "./routes/feedback.routes.js"
 //routes declaration
 // http://localhost:8000/api/v1/users/register
 app.use("/api/v1/users", userRouter);
-app.use("/api/v1/users", userRouter);
 app.use("/api/v1/experts", expertRouter);
 app.use("/api/v1/users-experts", bookingRouter);
 app.use("/api/v1/users-experts", feedbackRouter);
