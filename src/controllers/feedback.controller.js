@@ -12,6 +12,7 @@ const giveFeedback = asyncHandler(async (req, res) => {
 
 
     const { bookingId, rating, comment } = req.body
+   
 
     if (
         [bookingId, rating].some((field) => field?.trim() === "")
@@ -28,11 +29,16 @@ const giveFeedback = asyncHandler(async (req, res) => {
         return;
     }
 
+
+    // Check if feedback already exists for this booking
+    const existingFeedback = await Feedback.findOne({ booking: bookingId });
+    if (existingFeedback) {
+        throw new ApiError(400, "Feedback already exists for this booking");
+    }
+
     // Extract user and expert IDs from the booking
     const userId = booking.user;
     const expertId = booking.expert;
-
-
 
     const user = await User.findById(userId).select(
         "-password -refreshToken"
@@ -43,7 +49,7 @@ const giveFeedback = asyncHandler(async (req, res) => {
     )
 
     if (!user || !expert) {
-        throw new ApiError(500, "Something went wrong while searching for the user or expert")
+        throw new ApiError(500, "Something went wrong while searching for the user or expert when giving feedback")
     }
 
     const feedback = await Feedback.create({
@@ -54,11 +60,14 @@ const giveFeedback = asyncHandler(async (req, res) => {
 
     await feedback.save();
 
-    user.feedbackHistory.push(feedback._id);
+     booking.feedback = feedback._id
+     await booking.save();
+
+    user.feedbackHistory.unshift(feedback._id);
     await user.save({ validateBeforeSave: false });
 
     // Add the feedback ID to expert's feedback array
-    expert.feedbackHistory.push(feedback._id);
+    expert.feedbackHistory.unshift(feedback._id);
     await expert.save({ validateBeforeSave: false });
 
     return res.status(201).json(
@@ -66,5 +75,6 @@ const giveFeedback = asyncHandler(async (req, res) => {
     )
 
 })
+
 
 export { giveFeedback }
