@@ -16,7 +16,7 @@ const registerExpert = asyncHandler(async (req, res) => {
     // check for expert creation
     // return response
 
-    const { fullname, email, username, password, fees, gender, phone, experience, expertise, previousCompanies } = req.body
+    const { fullname, email, username,currentPosition, password, fees, gender, phone, experience, expertise, previousCompanies } = req.body
     //console.log("email: ", email);
 
     if (
@@ -51,6 +51,7 @@ const registerExpert = asyncHandler(async (req, res) => {
         email,
         password,
         username: username.toLowerCase(),
+        currentPosition,
         fees,
         gender,
         phone,
@@ -134,9 +135,7 @@ const loginExpert = asyncHandler(async (req, res) => {
         httpOnly: true,
         // secure: true
     }
-    // this options object is used to secure cookies from frontend
 
-    // { expire: 1 * 24 * 60 * 60 * 1000 + Date.now(), httpOnly: true }
 
     return res
         .status(200)

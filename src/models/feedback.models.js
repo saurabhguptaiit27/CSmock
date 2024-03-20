@@ -5,16 +5,16 @@ const feedbackSchema = new Schema(
         booking: {
             type: Schema.Types.ObjectId,
             ref: "Booking",
-            required: true
+            required: true,
         },
         rating: {
             type: Number,
             enum: [1, 2, 3, 4, 5],
-            default: 1
+            default: 5
         },
         comment: {
             type: String
-        }
+        },
     },
     {
         timestamps: true

@@ -16,7 +16,7 @@ const registerUser = asyncHandler(async (req, res) => {
     // check for user creation
     // return response
 
-    const { fullname, email, username, password, proficiency, gender, phone, experience, expectedRole } = req.body
+    const { fullname, email,currentPosition ,username, password, proficiency, gender, phone, experience, expectedRole } = req.body
     //console.log("email: ", email);
 
     if (
@@ -53,6 +53,7 @@ const registerUser = asyncHandler(async (req, res) => {
     const user = await User.create({
         fullname,
         avatar: avatar.url,
+        currentPosition,
         email,
         password,
         username: username.toLowerCase(),
