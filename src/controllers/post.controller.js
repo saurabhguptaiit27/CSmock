@@ -59,10 +59,48 @@ const createPost = asyncHandler(async (req, res) => {
 });
 
 const getALLPosts = asyncHandler(async (req, res) => {
-  const posts = await Post.find({});
+  const posts = await Post.find().sort({ createdAt: -1 });
   return res
     .status(200)
     .json(new ApiResponse(200, posts, "All posts are Fetched"));
 });
 
-export { createPost, getALLPosts };
+const deletePost = asyncHandler(async (req, res) => {
+  const { postId, createrId, createrType } = req.query;
+
+  // Find and delete the post document
+  const deletedPost = await Post.findByIdAndDelete(postId);
+  if (!deletedPost) {
+    throw new ApiError(500, "Something went wrong while deleting post");
+  }
+
+  // Remove the postId from the postHistory array of the corresponding User or Expert document
+  const creater =
+    createrType === "User"
+      ? await User.findById(createrId).select("-password -refreshToken")
+      : await Expert.findById(createrId).select("-password -refreshToken");
+
+  if (!creater) {
+    throw new ApiError(
+      500,
+      "Something went wrong while searching for the creater when deleting post reference"
+    );
+  }
+  // Remove postId from postHistory array of creater
+  creater.postHistory = creater.postHistory.filter(
+    (id) => id.toString() !== postId
+  );
+  await creater.save();
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        {},
+        "post and its reference in creater is deleted successfully"
+      )
+    );
+});
+
+export { createPost, getALLPosts, deletePost };
