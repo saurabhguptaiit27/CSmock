@@ -44,11 +44,11 @@ const appointmentBooking = asyncHandler(async (req, res) => {
 
     await booking.save();
 
-    user.bookingHistory.push(booking._id);
+    user.bookingHistory.unshift(booking._id);
     await user.save({ validateBeforeSave: false });
 
     // Add the booking ID to expert's bookings array
-    expert.bookingHistory.push(booking._id);
+    expert.bookingHistory.unshift(booking._id);
     await expert.save({ validateBeforeSave: false });
 
     return res.status(201).json(
@@ -59,8 +59,7 @@ const appointmentBooking = asyncHandler(async (req, res) => {
 
 const getBookingById = asyncHandler(async (req, res) => {
 
-    const bookingId  = req.query.string;
-    console.log(req.query.string)
+    const bookingId = req.query.string;
 
     const bookingById = await Booking.findById(bookingId)
     return res
@@ -73,4 +72,47 @@ const getBookingById = asyncHandler(async (req, res) => {
 })
 
 
-export { appointmentBooking, getBookingById }
+const cancelBooking = asyncHandler(async (req, res) => {
+
+    const bookingId = req.query.string;
+
+    const booking = await Booking.findById(bookingId)
+
+    booking.status = "cancelled";
+
+    await booking.save();
+
+    return res
+        .status(200)
+        .json(new ApiResponse(
+            200,
+            {},
+            "Booking cancelled successfully"
+        ))
+})
+
+
+
+const concludeBooking = asyncHandler(async (req, res) => {
+
+    const bookingId = req.query.string;
+
+    const booking = await Booking.findById(bookingId)
+
+    booking.status = "completed";
+
+    await booking.save();
+
+    return res
+        .status(200)
+        .json(new ApiResponse(
+            200,
+            {},
+            "Booking concluded successfully"
+        ))
+})
+
+
+
+
+export { appointmentBooking, getBookingById, cancelBooking, concludeBooking }
