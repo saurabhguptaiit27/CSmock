@@ -7,7 +7,7 @@ import { Post } from "../models/post.models.js";
 
 const createPost = asyncHandler(async (req, res) => {
   const { createrId, createrType, content, postedOn } = req.body;
-  console.log(req.body);
+
 
   if (
     [createrId, createrType, content, postedOn].some(

@@ -177,7 +177,6 @@ const logoutUser = asyncHandler(async (req, res) => {
             new: true
         }
     )
-    console.log("user11------", user11)
 
     const options = {
         httpOnly: true,
@@ -274,7 +273,7 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 
 
 const getCurrentUser = asyncHandler(async (req, res) => {
-    console.log("verified JWT entered getcurrentuser logic:", req.cookies)
+   
     return res
         .status(200)
         .json(new ApiResponse(

@@ -6,10 +6,7 @@ import { Expert } from "../models/expert.models.js";
 export const verifyJWT = asyncHandler(async (req, _, next) => {
     try {
         const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "")
-        //bring the token from cookies or header
-
-
-        // console.log(token);
+       
         if (!token) {
             throw new ApiError(401, "Unauthorized expert request")
         }
