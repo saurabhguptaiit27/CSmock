@@ -165,7 +165,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
 const logoutUser = asyncHandler(async (req, res) => {
 
-    const user11 = await User.findByIdAndUpdate(
+    const user = await User.findByIdAndUpdate(
         req.user._id,
         //this req.user got from verifyJWT middleware 
         {
