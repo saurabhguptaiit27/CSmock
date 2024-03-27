@@ -8,7 +8,6 @@ import { Post } from "../models/post.models.js";
 const createPost = asyncHandler(async (req, res) => {
   const { createrId, createrType, content, postedOn } = req.body;
 
-
   if (
     [createrId, createrType, content, postedOn].some(
       (field) => field?.trim() === ""
@@ -103,4 +102,21 @@ const deletePost = asyncHandler(async (req, res) => {
     );
 });
 
-export { createPost, getALLPosts, deletePost };
+const editPost = asyncHandler(async (req, res) => {
+  const { postId, content } = req.body;
+
+  // Find and edit the post content
+  const editedPost = await Post.findById(postId);
+  if (!editedPost) {
+    throw new ApiError(500, "Something went wrong while editing the post");
+  }
+
+  editedPost.content = content;
+  await editedPost.save();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Post is edited successfully"));
+});
+
+export { createPost, getALLPosts, deletePost, editPost };
