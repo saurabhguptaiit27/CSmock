@@ -89,7 +89,7 @@ const deletePost = asyncHandler(async (req, res) => {
   creater.postHistory = creater.postHistory.filter(
     (id) => id.toString() !== postId
   );
-  await creater.save();
+  await creater.save({ validateBeforeSave: false });
 
   return res
     .status(200)
@@ -119,4 +119,62 @@ const editPost = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "Post is edited successfully"));
 });
 
-export { createPost, getALLPosts, deletePost, editPost };
+const savePost = asyncHandler(async (req, res) => {
+  const { postId, createrId, createrType } = req.query;
+  //here creater is that who want to save the post
+  const creater =
+    createrType === "User"
+      ? await User.findById(createrId).select("-password -refreshToken")
+      : await Expert.findById(createrId).select("-password -refreshToken");
+
+  if (!creater) {
+    throw new ApiError(
+      500,
+      "Something went wrong while searching for the user/expert who want to save the post"
+    );
+  }
+  // save postId in savedPosts array of saver
+  creater.savedPosts.unshift(postId);
+  await creater.save({ validateBeforeSave: false });
+
+  const post = await Post.findById(postId);
+  post.savedBy.unshift(createrId);
+  await post.save();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "post saved successfully"));
+});
+
+const unSavePost = asyncHandler(async (req, res) => {
+  const { postId, createrId, createrType } = req.query;
+  //here creater is that who want to unsave the post
+  const creater =
+    createrType === "User"
+      ? await User.findById(createrId).select("-password -refreshToken")
+      : await Expert.findById(createrId).select("-password -refreshToken");
+
+  if (!creater) {
+    throw new ApiError(
+      500,
+      "Something went wrong while searching for the user/expert who want to unsave the post"
+    );
+  }
+  // unsave postId from savedPosts array of unsaver
+  creater.savedPosts = creater.savedPosts.filter(
+    (savedPostId) => savedPostId.toString() !== postId
+  );
+  await creater.save({ validateBeforeSave: false });
+  //remove saverId from post savedBy array
+  const post = await Post.findById(postId);
+  post.savedBy = post.savedBy.filter(
+    (sCreaterId) => sCreaterId.toString() !== createrId
+  );
+  await post.save();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "post unsaved successfully"));
+});
+
+export { createPost, getALLPosts, deletePost, editPost, savePost, unSavePost };

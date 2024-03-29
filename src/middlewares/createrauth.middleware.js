@@ -15,9 +15,6 @@ export const createrVerifyJWT = asyncHandler(async (req, _, next) => {
         ? req.body.createrType
         : req.query.createrType;
 
-
-    console.log(createrType);
-
     if (!token) {
       throw new ApiError(401, "Unauthorized expert request");
     }

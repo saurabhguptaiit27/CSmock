@@ -86,6 +86,24 @@ const userSchema = new Schema(
         ref: "Post",
       },
     ],
+    savedPosts: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Post",
+      },
+    ],
+    jobsSaved: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Job",
+      },
+    ],
+    jobsApplied: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Job",
+      },
+    ],
     refreshToken: {
       type: String,
     },

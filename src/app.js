@@ -26,6 +26,7 @@ import expertRouter from "./routes/expert.routes.js"
 import bookingRouter from "./routes/booking.routes.js"
 import feedbackRouter from "./routes/feedback.routes.js"
 import postRouter from "./routes/post.routes.js"
+import jobRouter from "./routes/job.routes.js"
 
 //routes declaration
 // http://localhost:8000/api/v1/users/register
@@ -34,7 +35,7 @@ app.use("/api/v1/experts", expertRouter);
 app.use("/api/v1/users-experts", bookingRouter);
 app.use("/api/v1/users-experts", feedbackRouter);
 app.use("/api/v1/creaters", postRouter);
-
+app.use("/api/v1/creaters", jobRouter);
 
 
 export { app }

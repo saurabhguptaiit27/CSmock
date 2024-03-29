@@ -111,6 +111,24 @@ const expertSchema = new Schema(
         ref: "Post",
       },
     ],
+    savedPosts: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Post",
+      },
+    ],
+    jobsSaved: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Job",
+      },
+    ],
+    jobsPosted: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Job",
+      },
+    ],
     refreshToken: {
       type: String,
     },

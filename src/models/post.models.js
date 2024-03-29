@@ -17,6 +17,11 @@ const postSchema = new Schema(
       type: String,
       required: true,
     },
+    savedBy: [
+      {
+        type: Schema.Types.ObjectId,
+      },
+    ],
   },
   {
     timestamps: true,
