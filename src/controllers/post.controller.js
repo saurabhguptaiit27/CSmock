@@ -177,4 +177,71 @@ const unSavePost = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "post unsaved successfully"));
 });
 
-export { createPost, getALLPosts, deletePost, editPost, savePost, unSavePost };
+const likePost = asyncHandler(async (req, res) => {
+  const { postId, createrId, createrType } = req.query;
+  //here creater is that who want to like the post
+  const creater =
+    createrType === "User"
+      ? await User.findById(createrId).select("-password -refreshToken")
+      : await Expert.findById(createrId).select("-password -refreshToken");
+
+  if (!creater) {
+    throw new ApiError(
+      500,
+      "Something went wrong while searching for the user/expert who want to like the post"
+    );
+  }
+  // save postId in likedPosts array of liker
+  creater.likedPosts.unshift(postId);
+  await creater.save({ validateBeforeSave: false });
+
+  const post = await Post.findById(postId);
+  post.likedBy.unshift(createrId);
+  await post.save();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "post liked successfully"));
+});
+
+const unLikePost = asyncHandler(async (req, res) => {
+  const { postId, createrId, createrType } = req.query;
+  //here creater is that who want to unlike the post
+  const creater =
+    createrType === "User"
+      ? await User.findById(createrId).select("-password -refreshToken")
+      : await Expert.findById(createrId).select("-password -refreshToken");
+
+  if (!creater) {
+    throw new ApiError(
+      500,
+      "Something went wrong while searching for the user/expert who want to unlike the post"
+    );
+  }
+  // unlike postId from savedPosts array of unliker
+  creater.likedPosts = creater.likedPosts.filter(
+    (likedPostId) => likedPostId.toString() !== postId
+  );
+  await creater.save({ validateBeforeSave: false });
+  //remove liker Id from post likedBy array
+  const post = await Post.findById(postId);
+  post.likedBy = post.likedBy.filter(
+    (sCreaterId) => sCreaterId.toString() !== createrId
+  );
+  await post.save();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "post unliked successfully"));
+});
+
+export {
+  createPost,
+  getALLPosts,
+  deletePost,
+  editPost,
+  savePost,
+  unSavePost,
+  likePost,
+  unLikePost,
+};

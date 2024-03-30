@@ -7,12 +7,28 @@ const reportSchema = new Schema(
       ref: "Booking",
       required: true,
     },
-    rating: {
+    round1Rating: {
       type: Number,
-      enum: [1, 2, 3, 4, 5],
-      default: 5,
+      required: true,
     },
-    comment: {
+    round1Comment: {
+      type: String,
+    },
+    round2Rating: {
+      type: Number,
+      required: true,
+    },
+    round2Comment: {
+      type: String,
+    },
+    round3Rating: {
+      type: Number,
+      required: true,
+    },
+    round3Comment: {
+      type: String,
+    },
+    overallComment: {
       type: String,
     },
   },

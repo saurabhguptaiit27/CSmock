@@ -80,6 +80,12 @@ const userSchema = new Schema(
         ref: "Feedback",
       },
     ],
+    reportHistory: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Report",
+      },
+    ],
     postHistory: [
       {
         type: Schema.Types.ObjectId,
@@ -87,6 +93,12 @@ const userSchema = new Schema(
       },
     ],
     savedPosts: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Post",
+      },
+    ],
+    likedPosts: [
       {
         type: Schema.Types.ObjectId,
         ref: "Post",

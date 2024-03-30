@@ -5,7 +5,9 @@ import {
   deletePost,
   editPost,
   savePost,
-  unSavePost
+  unSavePost,
+  likePost,
+  unLikePost,
 } from "../controllers/post.controller.js";
 import { createrVerifyJWT } from "../middlewares/createrauth.middleware.js";
 
@@ -17,5 +19,7 @@ router.route("/deletepost").post(createrVerifyJWT, deletePost);
 router.route("/editpost").post(createrVerifyJWT, editPost);
 router.route("/savepost").post(createrVerifyJWT, savePost);
 router.route("/unsavepost").post(createrVerifyJWT, unSavePost);
+router.route("/likepost").post(createrVerifyJWT, likePost);
+router.route("/unlikepost").post(createrVerifyJWT, unLikePost);
 
 export default router;

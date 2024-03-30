@@ -17,6 +17,11 @@ const postSchema = new Schema(
       type: String,
       required: true,
     },
+    likedBy: [
+      {
+        type: Schema.Types.ObjectId,
+      },
+    ],
     savedBy: [
       {
         type: Schema.Types.ObjectId,
