@@ -35,10 +35,5 @@ app.use("/api/v1/users-experts", feedbackRouter);
 app.use("/api/v1/users-experts", reportRouter);
 app.use("/api/v1/creaters", postRouter);
 app.use("/api/v1/creaters", jobRouter);
-app.use("/", (req, res) => {
-  console.log("---------------------------");
-  console.log(req);
-  console.log("---------------------------");
-});
 
 export { app };
