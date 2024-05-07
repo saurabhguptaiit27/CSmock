@@ -99,6 +99,9 @@ const generateAccessAndRefereshTokens = async (userId) => {
 }
 
 const loginUser = asyncHandler(async (req, res) => {
+    console.log("=====================================");
+    console.log(req);
+    console.log("=====================================");
     // req body -> data
     // username or email
     //find the user
