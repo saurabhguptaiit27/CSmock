@@ -7,6 +7,7 @@ import { User } from "../models/user.models.js";
 export const createrVerifyJWT = asyncHandler(async (req, _, next) => {
   try {
     const token =
+      req.query?.encryptionsecret ||
       req.cookies?.accessToken ||
       req.header("Authorization")?.replace("Bearer ", "");
 
